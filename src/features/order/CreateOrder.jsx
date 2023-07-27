@@ -98,8 +98,14 @@ export async function action({ request }) {
     priority: data.priority === "on",
   };
 
-  console.log(order);
+  const errors = {};
+  if (!isValidPhone(order.phone))
+    errors.phone =
+      "Please give us your correct phone number. We might need it to contact you.";
 
+  if (Object.keys(errors).length > 0) return errors;
+
+  //mif everything is ok, create new order and redirect
   const newOrder = await createOrder(order);
 
   return redirect(`/order/${newOrder.id}`);
