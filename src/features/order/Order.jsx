@@ -1,6 +1,7 @@
 // Test ID: IIDSAT
 import { useFetcher, useLoaderData } from "react-router-dom";
 import OrderItem from "./OrderItem";
+import UpdateOrder from "./UpdateOrder";
 import { getOrder } from "../../services/apiRestaurant";
 import {
   calcMinutesLeft,
@@ -123,6 +124,8 @@ function Order() {
           To pay on delivery: {formatCurrency(orderPrice + priorityPrice)}
         </p>
       </div>
+
+      {!priority && <UpdateOrder order={order} />}
     </div>
   );
 }
