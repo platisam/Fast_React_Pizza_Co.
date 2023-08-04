@@ -17,7 +17,16 @@ const isValidPhone = (str) =>
 
 function CreateOrder() {
   const [withPriority, setWithPriority] = useState(false);
-  const username = useSelector((state) => state.user.username);
+  const {
+    username,
+    status: addressStatus,
+    position,
+    address,
+    error: errorAddress,
+  } = useSelector((state) => state.user);
+
+  const isLoadingAddress = addressStatus === "loading";
+
   const navigation = useNavigation();
   const isSubmitting = navigation.state === "submitting";
 
@@ -66,20 +75,30 @@ function CreateOrder() {
               className="input w-full"
               type="text"
               name="address"
+              disabled={isLoadingAddress}
+              defaultValue={address}
               required
             />
+            {addressStatus === "error" && (
+              <p className="text-xs mt-2 text-red-700 bg-red-100 rounded-md p-2">
+                {errorAddress}
+              </p>
+            )}
           </div>
-          <span className="absolute right-[3px] z-50">
-            <Button
-              type="small"
-              onClick={(e) => {
-                e.preventDefault();
-                dispatch(fetchAddress());
-              }}
-            >
-              Get position
-            </Button>
-          </span>
+          {!position.latitude && !position.longitude && (
+            <span className="absolute right-[3px] top-[3px] z-50 md:right-[5px] md:top-[5px]">
+              <Button
+                disabled={isLoadingAddress}
+                type="small"
+                onClick={(e) => {
+                  e.preventDefault();
+                  dispatch(fetchAddress());
+                }}
+              >
+                Get position
+              </Button>
+            </span>
+          )}
         </div>
 
         <div className="mb-12 flex gap-5 items-center">
@@ -98,7 +117,7 @@ function CreateOrder() {
 
         <div>
           <input type="hidden" name="cart" value={JSON.stringify(cart)} />
-          <Button disabled={isSubmitting} type="primary">
+          <Button disabled={isSubmitting || isLoadingAddress} type="primary">
             {isSubmitting
               ? "Placing order..."
               : `Order now for ${formatCurrency(totalPrice)}`}
